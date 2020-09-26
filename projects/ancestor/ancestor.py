@@ -11,7 +11,7 @@ def earliest_ancestor(ancestors, starting_node):
     
     if starting_node not in tree:
         return -1
-        
+
     lineages = []
     visited = set()
     paths = [[starting_node]]
@@ -24,8 +24,8 @@ def earliest_ancestor(ancestors, starting_node):
             visited.add(node)
             for edge in tree[node]:
                 paths += [path + [edge]]
-    lineages.sort(key=len)
+    lineages.sort(key=lambda element: (len(element), -element[-1])) # sorts lineages by last node value (reversed) and length
     return lineages[-1][-1]
-
-test_ancestors = [(1, 3), (2, 3), (3, 6), (5, 6), (5, 7), (4, 5), (4, 8), (8, 9), (11, 8), (10, 1)]
-print(earliest_ancestor(test_ancestors, 5))
+if __name__ == '__main__':
+    test_ancestors = [(1, 3), (2, 3), (3, 6), (5, 6), (5, 7), (4, 5), (4, 8), (8, 9), (11, 8), (10, 1), (12, 2)]
+    print(earliest_ancestor(test_ancestors, 6))

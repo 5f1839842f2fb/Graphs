@@ -9,3 +9,12 @@ class Player:
                 next_room.print_room_description(self)
         else:
             print("You cannot move in that direction.")
+    def get_opposite_direction(self, direction):
+        if direction == "n":
+            return ("s", self.current_room.id)
+        elif direction == "s":
+            return ("n", self.current_room.id)
+        elif direction == "w":
+            return ("e", self.current_room.id)
+        elif direction == "e":
+            return ("w", self.current_room.id)

@@ -1,3 +1,6 @@
+import random
+import collections
+
 class User:
     def __init__(self, name):
         self.name = name
@@ -43,10 +46,23 @@ class SocialGraph:
         self.users = {}
         self.friendships = {}
         # !!!! IMPLEMENT ME
-
+        names = {"Bob", "Dan", "Lisa", "Emily", "Phillip", "Billy", "Katy", "Julie", "Robert", "Dorothy"}
+        if avg_friendships >= num_users:
+            return "average friendships must be less than number of users"
         # Add users
-
+        for i in range(0, num_users):
+            name = names.pop()
+            self.add_user(name)
         # Create friendships
+        allPossible = []
+        for user1 in self.users:
+            for user2 in self.users:
+                if user1 != user2 and (user2, user1) not in allPossible:
+                    allPossible += [(user1, user2)]
+        random.shuffle(allPossible)
+        for i in range(0, avg_friendships*num_users):
+            friendship = allPossible.pop()
+            self.add_friendship(friendship[0], friendship[1])
 
     def get_all_social_paths(self, user_id):
         """
@@ -57,9 +73,20 @@ class SocialGraph:
 
         The key is the friend's ID and the value is the path.
         """
-        visited = {}  # Note that this is a dictionary, not a set
+        visited = set()  # Note that this is a dictionary, not a set
         # !!!! IMPLEMENT ME
-        return visited
+        routes = collections.defaultdict(list)
+        paths = [[user_id]]
+        while len(paths) > 0: # 
+            path = paths.pop(0)
+            node = path[-1]
+            if node not in visited:
+                routes[node] += [path]
+                visited.add(node)
+                for edge in self.friendships[node]:
+                    paths += [path + [edge]]
+        routes.pop(user_id)
+        return routes
 
 
 if __name__ == '__main__':
