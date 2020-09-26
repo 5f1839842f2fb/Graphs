@@ -19,7 +19,7 @@ world = World()
 
 # Loads the map into a dictionary
 # room_graph=literal_eval(open(map_file, "r").read())
-world.load_graph({
+room_graph = {
   494: [(1, 8), {'e': 457}],
   492: [(1, 20), {'e': 400}],
   493: [(2, 5), {'e': 478}],
@@ -520,7 +520,8 @@ world.load_graph({
   499: [(23, 24), {'w': 311}],
   471: [(24, 18), {'n': 320}],
   320: [(24, 19), {'s': 471, 'w': 300}]
-})
+}
+world.load_graph(room_graph)
 
 # Print an ASCII map
 world.print_rooms()
@@ -536,25 +537,29 @@ more = 0
 visited = collections.defaultdict(dict)
 previousDirection = None
 while stillMoreToExplore:
-    if len(visited) > 499:
-        stillMoreToExplore = False
-    print("current room: ", player.current_room.id)
+    #print("current room: ", player.current_room.id)
     if player.current_room.id not in visited:
         visited[player.current_room.id] = {e: "?" for e in player.current_room.get_exits()}
     if previousDirection is not None:
         visited[player.current_room.id][previousDirection[0]] = previousDirection[1] # what a clusterfuck
     unexplored = {k for (k, v) in visited[player.current_room.id].items() if v == "?"}
+    more = 0
+    for node in visited: # checks if there's any unexplored directions in visited
+        if "?" in visited[node].values():
+            more += 1
+    if more == 0:
+        stillMoreToExplore = False
     #print(unexplored)
     if len(unexplored) > 0:
         reversePath = None
-        newDirection = unexplored.pop()
-        previousDirection = player.get_opposite_direction(newDirection)
+        newDirection = unexplored.pop() # grabs random(ish) direction from unexplored
+        previousDirection = player.get_opposite_direction(newDirection) # saves the current room id and opposite of direction about to be travelled
         #print(newDirection)
         traversal_path += [newDirection]
         visited[player.current_room.id][newDirection] = player.current_room.get_room_in_direction(newDirection).id
         player.travel(newDirection)
     else:
-        previousDirection = None
+        previousDirection = None # bfs to find closest node with an unexplored direction
         visitedReturn = set()
         paths = [[player.current_room.id]]
         while len(paths) > 0:
@@ -571,21 +576,21 @@ while stillMoreToExplore:
                 visitedReturn.add(node)
                 for direction in visited[node]:
                     paths += [path + [visited[node][direction]]]
-print(len(traversal_path))
+#print(len(traversal_path))
 # TRAVERSAL TEST
-# visited_rooms = set()
-# player.current_room = world.starting_room
-# visited_rooms.add(player.current_room)
+visited_rooms = set()
+player.current_room = world.starting_room
+visited_rooms.add(player.current_room)
 
-# for move in traversal_path:
-#     player.travel(move)
-#     visited_rooms.add(player.current_room)
+for move in traversal_path:
+    player.travel(move)
+    visited_rooms.add(player.current_room)
 
-# if len(visited_rooms) == len(room_graph):
-#     print(f"TESTS PASSED: {len(traversal_path)} moves, {len(visited_rooms)} rooms visited")
-# else:
-#     print("TESTS FAILED: INCOMPLETE TRAVERSAL")
-#     print(f"{len(room_graph) - len(visited_rooms)} unvisited rooms")
+if len(visited_rooms) == len(room_graph):
+    print(f"TESTS PASSED: {len(traversal_path)} moves, {len(visited_rooms)} rooms visited")
+else:
+    print("TESTS FAILED: INCOMPLETE TRAVERSAL")
+    print(f"{len(room_graph) - len(visited_rooms)} unvisited rooms")
 
 
 
