@@ -538,7 +538,7 @@ previousDirection = None
 while stillMoreToExplore:
     if len(visited) > 499:
         stillMoreToExplore = False
-    print(player.current_room.id)
+    print("current room: ", player.current_room.id)
     if player.current_room.id not in visited:
         visited[player.current_room.id] = {e: "?" for e in player.current_room.get_exits()}
     if previousDirection is not None:
@@ -554,20 +554,24 @@ while stillMoreToExplore:
         visited[player.current_room.id][newDirection] = player.current_room.get_room_in_direction(newDirection).id
         player.travel(newDirection)
     else:
-        if reversePath is None:
-            reversePath = list(traversal_path)
-        previousDirection = (reversePath.pop(), player.current_room.id)
-        traversal_path += [player.get_opposite_direction(previousDirection[0])[0]]
-        player.travel(player.get_opposite_direction(previousDirection[0])[0])
-        #print(traversal_path)
-        more = 0
-        # for e in visited:
-        #     if "?" in visited[e].values():
-        #         more += 1
-        # if more == 0:
-        #     stillMoreToExplore = False
-traversal_path.pop()
-print(traversal_path)
+        previousDirection = None
+        visitedReturn = set()
+        paths = [[player.current_room.id]]
+        while len(paths) > 0:
+            path = paths.pop(0)
+            node = path[-1]
+            if "?" in visited[node].values():
+                path.pop(0) # removes first node in path which is current location
+                for node in path:
+                    for k, v in visited[player.current_room.id].items(): #annoying way to get key(direction) by value(node) in the dict
+                        if v == node:
+                            traversal_path += [k]
+                            player.travel(k)
+            elif node not in visitedReturn:
+                visitedReturn.add(node)
+                for direction in visited[node]:
+                    paths += [path + [visited[node][direction]]]
+print(len(traversal_path))
 # TRAVERSAL TEST
 # visited_rooms = set()
 # player.current_room = world.starting_room
